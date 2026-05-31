@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+         cacheDirectory=".phpunit.cache">
+    <testsuites>
+        <testsuite name="Package">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>src</directory>
+        </include>
+    </source>
+    <php>
+        <env name="TELEGRAM_LOG_BOT_TOKEN" value="test-token"/>
+        <env name="TELEGRAM_LOG_CHAT_ID" value="-1001234567890"/>
+        <env name="TELEGRAM_LOG_ENABLED" value="true"/>
+        <env name="TELEGRAM_LOG_RATE_LIMIT_ENABLED" value="false"/>
+    </php>
+</phpunit>
