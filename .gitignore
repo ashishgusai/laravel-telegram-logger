@@ -8,3 +8,5 @@ composer.lock
 .DS_Store
 CLAUDE.md
 .claude/
+*.code-workspace
+tests/LiveIntegration.php
