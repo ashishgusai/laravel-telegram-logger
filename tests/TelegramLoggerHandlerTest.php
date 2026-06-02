@@ -241,4 +241,50 @@ class TelegramLoggerHandlerTest extends TestCase
 
         Http::assertNothingSent();
     }
+
+    public function test_global_cap_drops_messages_over_limit(): void
+    {
+        config()->set('telegram-logger.rate_limit.global_max_per_minute', 10);
+        Cache::flush();
+        Http::fake();
+
+        $handler = new TelegramLoggerHandler(Level::Critical);
+
+        for ($i = 1; $i <= 12; $i++) {
+            $handler->handle($this->makeRecord(message: "Unique error {$i}"));
+        }
+
+        Http::assertSentCount(10);
+    }
+
+    public function test_global_cap_zero_disables_feature(): void
+    {
+        config()->set('telegram-logger.rate_limit.global_max_per_minute', 0);
+        Cache::flush();
+        Http::fake();
+
+        $handler = new TelegramLoggerHandler(Level::Critical);
+
+        for ($i = 1; $i <= 12; $i++) {
+            $handler->handle($this->makeRecord(message: "Unique error {$i}"));
+        }
+
+        Http::assertSentCount(12);
+    }
+
+    public function test_global_check_runs_before_per_sig_check(): void
+    {
+        config()->set('telegram-logger.rate_limit.global_max_per_minute', 2);
+        config()->set('telegram-logger.rate_limit.enabled', true);
+        config()->set('telegram-logger.rate_limit.window', 300);
+        Cache::flush();
+        Http::fake();
+
+        $handler = new TelegramLoggerHandler(Level::Critical);
+        $handler->handle($this->makeRecord(message: 'Alpha'));
+        $handler->handle($this->makeRecord(message: 'Beta'));
+        $handler->handle($this->makeRecord(message: 'Gamma'));
+
+        Http::assertSentCount(2);
+    }
 }

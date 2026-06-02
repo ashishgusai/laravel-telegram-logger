@@ -50,6 +50,9 @@ TELEGRAM_LOG_QUEUE_NAME=alerts
 # Optional — rate limit duplicate alerts (seconds)
 TELEGRAM_LOG_RATE_LIMIT_ENABLED=true
 TELEGRAM_LOG_RATE_LIMIT_WINDOW=300
+
+# Optional — global volume cap per minute across all signatures (0 = disabled)
+TELEGRAM_LOG_GLOBAL_MAX_PER_MIN=10
 ```
 
 Register the channel in `config/logging.php`:
@@ -91,6 +94,8 @@ try {
 ## How rate limiting works
 
 Each log line is hashed by `level + message`. If the same hash is seen again within `rate_limit.window` seconds (default 300), the duplicate is silently dropped. Cache backend defaults to your app default; override with `TELEGRAM_LOG_RATE_LIMIT_STORE`.
+
+A second gate — the **global volume cap** (`TELEGRAM_LOG_GLOBAL_MAX_PER_MIN`, default 10) — limits the absolute number of messages sent in any single wall-clock minute, regardless of how many distinct signatures are active. This prevents "variety storms" where a broken deployment throws 20 different exceptions at once and floods the channel. Set to `0` to disable the global cap.
 
 ## How thread routing works
 

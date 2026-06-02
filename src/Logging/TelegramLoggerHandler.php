@@ -20,6 +20,10 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
             return;
         }
 
+        if ($this->isGlobalRateLimited()) {
+            return;
+        }
+
         if ($this->isRateLimited($record)) {
             return;
         }
@@ -56,6 +60,32 @@ class TelegramLoggerHandler extends AbstractProcessingHandler
         }
 
         $cache->put($key, 1, $window);
+
+        return false;
+    }
+
+    protected function isGlobalRateLimited(): bool
+    {
+        $max = (int) config('telegram-logger.rate_limit.global_max_per_minute', 10);
+
+        if ($max <= 0) {
+            return false;
+        }
+
+        $store = config('telegram-logger.rate_limit.store');
+        $cache = $store ? Cache::store($store) : Cache::store();
+        $bucket = 'tg_log_global:' . (int) floor(time() / 60);
+
+        // Cache::add writes only if key absent — atomic on Redis/Memcached.
+        $cache->add($bucket, 0, 70);
+
+        $count = (int) $cache->get($bucket, 0);
+
+        if ($count >= $max) {
+            return true;
+        }
+
+        $cache->increment($bucket);
 
         return false;
     }

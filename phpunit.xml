@@ -19,5 +19,6 @@
         <env name="TELEGRAM_LOG_CHAT_ID" value="-1001234567890"/>
         <env name="TELEGRAM_LOG_ENABLED" value="true"/>
         <env name="TELEGRAM_LOG_RATE_LIMIT_ENABLED" value="false"/>
+        <env name="TELEGRAM_LOG_GLOBAL_MAX_PER_MIN" value="0"/>
     </php>
 </phpunit>

@@ -69,13 +69,18 @@ return [
     |
     | Hash each log signature (level + message) and cache it for the given
     | window. Identical alerts emitted within the window are suppressed to
-    | prevent alert storms during cascading failures.
+    | prevent repetition storms during cascading failures.
+    |
+    | global_max_per_minute caps the *total* messages dispatched in any single
+    | wall-clock minute, regardless of signature diversity. Prevents "variety
+    | storms" where many distinct exceptions fire at once. Set to 0 to disable.
     |
     */
     'rate_limit' => [
-        'enabled' => env('TELEGRAM_LOG_RATE_LIMIT_ENABLED', true),
-        'window'  => env('TELEGRAM_LOG_RATE_LIMIT_WINDOW', 300),
-        'store'   => env('TELEGRAM_LOG_RATE_LIMIT_STORE'),
+        'enabled'               => env('TELEGRAM_LOG_RATE_LIMIT_ENABLED', true),
+        'window'                => env('TELEGRAM_LOG_RATE_LIMIT_WINDOW', 300),
+        'store'                 => env('TELEGRAM_LOG_RATE_LIMIT_STORE'),
+        'global_max_per_minute' => env('TELEGRAM_LOG_GLOBAL_MAX_PER_MIN', 10),
     ],
 
     /*
